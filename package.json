@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node src/main.js",
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,7 +16,8 @@
     "koa-log4": "^2.3.2",
     "koa-router": "^7.4.0",
     "koa2-cors": "^2.0.6",
-    "mysql": "^2.17.1"
+    "mysql": "^2.17.1",
+    "source-map": "^0.7.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

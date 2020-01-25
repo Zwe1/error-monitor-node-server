@@ -2,9 +2,13 @@ require("babel-polyfill");
 require("babel-register");
 const Koa = require("Koa");
 const bodyParser = require("koa-bodyparser");
-const router = require("koa-router")();
 const cors = require("koa2-cors");
+const errorsRouter = require("./routers/errors");
+const sourcemapRouter = require("./routers/sourcemap");
 const { logger, accessLogger } = require("./middleware/log");
+const mysql = require("./mysql/index");
+const { webserver } = require("./config/default");
+const PORT = process.env.PORT || webserver.PORT;
 
 const app = new Koa();
 
@@ -12,32 +16,7 @@ app.on("error", err => {
   logger.error(err);
 });
 
-const mysql = require("../mysql/index");
-const PORT = process.env.PORT || 5000;
-
 app.context.mysql = mysql;
-
-router.post("/upload", async ctx => {
-  try {
-    const body = ctx.request.body;
-    await ctx.mysql.whriteError(body);
-    ctx.response.type = "json";
-    ctx.body = "ok";
-  } catch (e) {
-    ctx.statusCode = 500;
-    ctx.response.type = "json";
-    ctx.body = "error";
-  }
-});
-
-router.get("/errors", async ctx => {
-  const webErrors = await ctx.mysql.query();
-  ctx.body = {
-    code: 200,
-    msg: "success",
-    data: webErrors
-  };
-});
 
 app.use(accessLogger());
 
@@ -52,13 +31,13 @@ app.use(
 
 app.use(bodyParser());
 
-app.use(router.routes());
+app.use(errorsRouter.routes());
+app.use(sourcemapRouter.routes());
 
 app.listen(PORT, err => {
   if (err) {
     console.log("server start failed...", err);
     return;
   }
-
   console.log(`Listening at port ${PORT}, server start...`);
 });

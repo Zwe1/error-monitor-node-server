@@ -1,2 +1,4 @@
-node_modules
-logs
+/node_modules
+/logs
+/sourceMaps
+.history

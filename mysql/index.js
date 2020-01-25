@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const config = require("../config/default");
 const sqls = require("./sqls");
-const { logger } = require("../src/middleware/log");
+const { logger } = require("../middleware/log");
 
 const connection = mysql.createConnection(config.databaseConfig);
 
