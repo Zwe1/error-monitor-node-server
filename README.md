@@ -6,7 +6,7 @@
 
 ### 架构
 
-整个系统包含前端系统，后端系统，及数据库服务。前端收集上报发送错误信息到服务端，服务端处理收集存储错误信息到数据库，并支持前端获取处理后的错误信息，支持 source-map 转换后，在前端进行集中展示。
+整个系统包含[前端系统](https://github.com/Zwe1/error-monitor-frontend)，source-map [插件](https://github.com/Zwe1/error-monitor-webpack-plugin) 和 后端系统，及数据库服务。前端收集上报发送错误信息到服务端，服务端处理收集存储错误信息到数据库，并支持前端获取处理后的错误信息，支持 source-map 转换后，在前端进行集中展示。
 
 ### 基本功能
 
