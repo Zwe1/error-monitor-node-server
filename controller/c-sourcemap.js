@@ -8,12 +8,9 @@ exports.uploadSourceMap = ctx => {
     .on("data", data => {
       const souremapContent = data.toString("utf8");
       const { querystring } = ctx.request;
-      const { timeStamp, fileName } = qs.parse(querystring);
+      const { fileName } = qs.parse(querystring);
 
-      writeFile(
-        path.join(sourceMapConfig.dir, timeStamp, fileName),
-        souremapContent
-      );
+      writeFile(path.join(sourceMapConfig.dir, fileName), souremapContent);
     })
     .on("close", () => {})
     .on("error", () => {})
