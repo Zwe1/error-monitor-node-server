@@ -1,7 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
-const writeFile = (fileName, content, options = {}) => {
+exports.writeFile = (fileName, content, options = {}) => {
   if (!content || !fileName) {
     throw new Error("'content', 'fileName' is required!!");
   }
@@ -33,4 +34,11 @@ const writeFile = (fileName, content, options = {}) => {
   }
 };
 
-module.exports = writeFile;
+// 删除文件夹
+exports.delDir = dir => {
+  try {
+    execSync(`rm -rf ${dir}`);
+  } catch (e) {
+    console.log("del dir failed");
+  }
+};

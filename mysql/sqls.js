@@ -23,7 +23,8 @@ module.exports = {
       filename varchar(255) ,
       message varchar(255) not null,
       stack text not null,
-      type varchar(255) not null
+      type varchar(255) not null,
+      sourcemap text
     ) engine=InnoDB auto_increment=0 default charset=utf8`,
   //   createTable: () => `create table if not exists todos(
   //     id int primary key auto_increment,
@@ -31,5 +32,6 @@ module.exports = {
   //     completed tinyint(1) not null default 0
   // )`,
   all: tb => `SELECT * from ${tb}`,
-  writeError: tb => `INSERT INTO ${tb} SET ?`
+  writeError: tb => `INSERT INTO ${tb} SET ?`,
+  delAll: tb => `del * from ${tb}`
 };

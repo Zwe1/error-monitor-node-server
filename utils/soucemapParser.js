@@ -1,5 +1,31 @@
 const fs = require("fs");
+const path = require("path");
+const sourceMapTool = require("source-map");
 const { sourceMapConfig } = require("../config/default");
+
+// 检验是否为文件夹
+const notStrictlyIsDir = p => !/\./.test(p);
+
+// 检测manifest文件
+const isManifest = p => /manifest\.json/.test(p);
+
+// 从sourcemap目录解析文件
+const sourcemapPrefix = p => path.join(sourceMapConfig.dir, p);
+
+// 从sourcemap目录中找到sourcemap文件
+const findManifest = baseDir => {
+  const files = fs.readdirSync(baseDir);
+
+  if (files.some(f => isManifest(f))) {
+    return path.join(baseDir, files.filter(f => isManifest(f))[0]);
+  }
+
+  files.forEach(f => {
+    if (notStrictlyIsDir(f)) {
+      findManifest(path.join(baseDir, f));
+    }
+  });
+};
 
 /**
  *
@@ -12,22 +38,43 @@ const { sourceMapConfig } = require("../config/default");
  *
  */
 const findSourcemapFile = (filename, col, line) => {
-  const sourcemapDirs = fs.readdirSync(sourceMapConfig.dir);
-  let outputSourcemapFilename;
+  // 找到source-map文件
+  const manifest = findManifest(sourceMapConfig.dir);
+  let outputSourcemapFilename = "";
 
-  sourcemapDirs.forEach(dir => {
-    const files = fs.readFileSync(dir);
-    const manifest = files.filter(f => /manifest\.json/.test(f))[0];
-
-    if (manifest) {
-      const content = fs.readFileSync(manifest);
-      const { files } = JSON.parse(content);
-
-      outputSourcemapFilename = files[filename];
-    }
-  });
+  if (manifest) {
+    const content = fs.readFileSync(manifest);
+    const { files } = JSON.parse(content);
+    outputSourcemapFilename = files[`${filename}.map`];
+  }
 
   return outputSourcemapFilename;
+};
+
+/**
+ *
+ * @param {sourcemap 文件} sourcemapFile
+ * @param {行号} line
+ * @param {列号} col
+ *
+ * 通过 sourec-map 来解析错误源码
+ */
+const parseJSError = (sourcemapFile, line, col) => {
+  return new Promise(resolve => {
+    fs.readFile(sourcemapFile, "utf8", function readContent(
+      err,
+      sourcemapcontent
+    ) {
+      sourceMapTool.SourceMapConsumer.with(sourcemapcontent, null, consumer => {
+        const parseData = consumer.originalPositionFor({
+          line: parseInt(line),
+          column: parseInt(col)
+        });
+
+        resolve(JSON.stringify(parseData));
+      });
+    });
+  });
 };
 
 /**
@@ -39,16 +86,13 @@ const findSourcemapFile = (filename, col, line) => {
 
 module.exports = (info = []) => {
   const [filename, line, col] = info;
-  //   if (!col || !line || !filename) {
-  //     console.log(
-  //       "error info is not complete, please specify the line, col and filename"
-  //     );
-  //     return;
-  //   }
 
-  const hittedFile = findSourcemapFile(filename, Number(col), Number(line));
+  // 错误文件的 map 文件
+  const sourcemapFileName = `${sourceMapConfig.dir}${filename}.map`;
 
-  fs.readFile(hittedFile, (e, c) => {
-    console.log("ec", e, c);
-  });
+  if (fs.existsSync(sourcemapFileName)) {
+    return parseJSError(sourcemapFileName, line, col);
+  }
+
+  return Promise.resolve(JSON.stringify({}));
 };

@@ -5,7 +5,7 @@ const findTheVeryFirstFileInErrorStack = stack => {
   if (!stack) return "";
 
   // 第一个出错文件
-  const reg = /.*\((\S+)\).*/;
+  const reg = /\s(\(?http(s)?:\/\/\S+:\d+\d+\)?)/;
   // 去掉域名
   const reg1 = /.*\/\/\S+?(\/.*)/;
 

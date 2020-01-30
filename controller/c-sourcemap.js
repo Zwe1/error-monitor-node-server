@@ -1,7 +1,7 @@
 const qs = require("querystring");
 const path = require("path");
 const { sourceMapConfig } = require("../config/default");
-const writeFile = require("../utils/writeFile");
+const { writeFile, delDir } = require("../utils/writeFile");
 
 exports.uploadSourceMap = ctx => {
   ctx.req
